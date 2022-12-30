@@ -1,0 +1,51 @@
+#!/usr/bin/python
+
+import socket
+import argparse
+
+parser = argparse.ArgumentParser(description='Ferramenta de Enumeração FTP')
+parser.add_argument('host', type=str, help='O nome de host ou o endereço IP do servidor FTP')
+parser.add_argument('port', type=int, help='O número da porta do servidor FTP')
+args = parser.parse_args()
+
+server_address = (args.host, args.port)
+tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcp.connect(server_address)
+print("Conectando ao servidor...")
+
+response = tcp.recv(1024)
+print(response.decode())
+
+username = input("Nome de usuário: ")
+password = input("Senha: ")
+
+tcp.send(f'USER {username}\r\n'.encode())
+response = tcp.recv(1024)
+print(response.decode())
+
+tcp.send(f'PASS {password}\r\n'.encode())
+response = tcp.recv(1024)
+print(response.decode())
+
+print("Enviando comando HELP...")
+tcp.send(b'HELP\r\n')
+response = tcp.recv(1024)
+print(response.decode())
+
+print("Enviando comando PWD...")
+tcp.send(b'PWD\r\n')
+response = tcp.recv(1024)
+print(response.decode())
+
+print("Entrando no modo passivo...")
+tcp.send(b'PASV\r\n')
+response = tcp.recv(1024)
+print(response.decode())
+
+print("Listando diretório...")
+tcp.send(b'LIST\r\n')
+response = tcp.recv(1024)
+print(response.decode())
+
+tcp.close()
+print("Fechando conexão...")
